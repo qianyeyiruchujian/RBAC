@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+	<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}">
+	<link rel="stylesheet" th:href="@{/css/main.css}">
+	<link rel="stylesheet" th:href="@{/css/doc.min.css}">
+	<style>
+	.tree li {
+        list-style-type: none;
+		cursor:pointer;
+	}
+	</style>
+  </head>
+
+  <body>
+
+    <div th:replace="common/bar::topbar(topMsg='用户维护')"></div>
+
+    <div class="container-fluid">
+      <div class="row">
+
+		<div th:replace="common/bar::leftbar(activeUri='user',openTree='1')"></div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+				<ol class="breadcrumb">
+				  <li><a href="#">首页</a></li>
+				  <li><a href="#">数据列表</a></li>
+				  <li class="active">修改</li>
+				</ol>
+			<div class="panel panel-default">
+              <div class="panel-heading">表单数据<div style="float:right;cursor:pointer;" data-toggle="modal" data-target="#myModal"><i class="glyphicon glyphicon-question-sign"></i></div></div>
+			  <div class="panel-body">
+				<form role="form" id="userForm">
+				  <div class="form-group">
+					<label for="account">登陆账号</label>
+					<input type="text" class="form-control" id="account" name="account" th:value="${user.account}">
+				  </div>
+				  <div class="form-group">
+					<label for="name">用户名称</label>
+					<input type="text" class="form-control" id="name" name="name" th:value="${user.name}">
+				  </div>
+				  <div class="form-group">
+					<label for="email">邮箱地址</label>
+					<input type="email" class="form-control" id="email" name="email" th:value="${user.email}">
+					<p class="help-block label label-warning">请输入合法的邮箱地址, 格式为： xxxx@xxxx.com</p>
+				  </div>
+				  <input type="hidden" id="id" name="id" th:value="${user.id}"/>
+				  <button type="button" class="btn btn-success" id="updateBtn"><i class="glyphicon glyphicon-edit"></i> 修改</button>
+				  <button type="button" class="btn btn-danger" id="refreshBtn"><i class="glyphicon glyphicon-refresh"></i> 重置</button>
+				</form>
+			  </div>
+			</div>
+        </div>
+      </div>
+    </div>
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			<h4 class="modal-title" id="myModalLabel">帮助</h4>
+		  </div>
+		  <div class="modal-body">
+			<div class="bs-callout bs-callout-info">
+				<h4>测试标题1</h4>
+				<p>测试内容1，测试内容1，测试内容1，测试内容1，测试内容1，测试内容1</p>
+			  </div>
+			<div class="bs-callout bs-callout-info">
+				<h4>测试标题2</h4>
+				<p>测试内容2，测试内容2，测试内容2，测试内容2，测试内容2，测试内容2</p>
+			  </div>
+		  </div>
+		  <!--
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			<button type="button" class="btn btn-primary">Save changes</button>
+		  </div>
+		  -->
+		</div>
+	  </div>
+	</div>
+    <script th:src="@{/jquery/jquery-2.1.1.min.js}"></script>
+    <script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+	<script th:src="@{/script/docs.min.js}"></script>
+	<script th:src="@{/layer/layer.js}"></script>
+        <script type="text/javascript">
+            $(function () {
+			    $(".list-group-item").click(function(){
+				    if ( $(this).find("ul") ) {
+						$(this).toggleClass("tree-closed");
+						if ( $(this).hasClass("tree-closed") ) {
+							$("ul", this).hide("fast");
+						} else {
+							$("ul", this).show("fast");
+						}
+					}
+				});
+            });
+
+			var pathName = document.location.pathname;
+			var index = pathName.substr(1).indexOf("/");
+			var appPath = pathName.substr(0,index+1);
+
+			$("#updateBtn").click(function () {
+				var account = $("#account").val();
+				var name = $("#name").val();
+				var email = $("#email").val();
+				var id = $("#id").val();
+				if(account == ""){
+					layer.msg("账号不能为空", {time:1000, icon:5, shift:6}, function () {
+						$("#account").focus();
+					});
+					return false;
+				}
+				if(name == ""){
+					layer.msg("姓名不能为空", {time:1000, icon:5, shift:6}, function () {
+						$("#name").focus();
+					});
+					return false;
+				}
+				if(email.indexOf("@") == -1 || email.substring(0,1)=="@" || email.substring(email.length-1,email.length)=="@"){
+					layer.msg("请输入正确的email格式", {time:1000, icon:5, shift:6}, function () {
+						$("#email").focus();
+					});
+					return false;
+				}
+				var loadingIndex = null;
+				$.ajax({
+					type:"POST",
+					url:appPath+"/user/updateUser",
+					data:{
+						"account":account,
+						"name":name,
+						"email":email,
+						"id":id,
+					},
+					beforeSend:function () {
+						loadingIndex = layer.msg('用户保存中...', {icon: 16});
+					},
+					success:function (result) {
+						layer.close(loadingIndex);
+						if(result.success){
+							layer.msg("用户信息更新成功",{time:1000,icon:6,shift:0}, function () {
+								window.location.href = appPath+"/user/userPage";
+							});
+						}else{
+							layer.msg("用户信息更新	失败，请重新操作！",{time:1000, icon:5, shift:6}, function () {});
+						}
+					}
+				})
+			})
+
+			$("#refreshBtn").click(function () {
+				$("#userForm")[0].reset();
+			})
+        </script>
+  </body>
+</html>

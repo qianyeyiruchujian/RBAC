@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lygao.rbac.mapper.RoleMapper">
+    <insert id="insertRole" parameterType="com.lygao.rbac.entity.Role">
+        INSERT INTO role (rolename,createtime,modifytime) VALUES (#{role.rolename},${role.createtime},${role.modifytime})
+    </insert>
+
+    <select id="queryAllRoles" resultType="com.lygao.rbac.entity.Role">
+        SELECT * FROM role
+        <where>
+            <if test="queryText != null">
+                AND rolename LIKE concat("%", #{queryText} ,"%")
+            </if>
+        </where>
+    </select>
+
+    <select id="queryRole" resultType="com.lygao.rbac.entity.Role">
+        SELECT * FROM role
+        <where>
+            <if test="role.roleid != null">
+                AND roleid = #{role.roleid}
+            </if>
+            <if test="role.rolename != null">
+                AND rolename = #{role.rolename}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateRole" parameterType="com.lygao.rbac.entity.Role">
+        UPDATE Role
+        <set>
+            <if test="role.rolename != null">
+                rolename = #{role.rolename},
+            </if>
+        </set>
+        WHERE roleid = #{role.roleid}
+    </update>
+
+    <delete id="deleteRole" parameterType="java.lang.Integer">
+        DELETE FROM role WHERE roleid = #{roleid}
+    </delete>
+
+    <delete id="deleteRoles" parameterType="java.util.List">
+        DELETE FROM Role WHERE roleid in
+        <foreach collection="roleids" item="roleid" open="(" close=")" separator=",">
+            #{roleid}
+        </foreach>
+    </delete>
+</mapper>

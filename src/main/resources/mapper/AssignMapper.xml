@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lygao.rbac.mapper.AssignMapper">
+    <select id="queryRoleIdByUserId" resultType="java.lang.Integer">
+        SELECT roleid FROM user_role WHERE userid = #{userid}
+    </select>
+
+    <insert id="insertAssign" parameterType="com.lygao.rbac.entity.User_Role">
+        INSERT INTO user_role (userid,roleid) values (#{userRole.userid},#{userRole.roleid})
+    </insert>
+
+    <delete id="deleteAssign" parameterType="com.lygao.rbac.entity.User_Role">
+        DELETE FROM user_role WHERE userid = #{userRole.userid} AND roleid = #{userRole.roleid}
+    </delete>
+
+</mapper>
